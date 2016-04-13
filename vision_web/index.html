@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<link rel="shortcut icon"
+      href="img/D_favicon.ico">
+
+	<script src="js/jquery.min.js"></script>
+	<script src="roslib/eventemitter2.js"></script>
+	<script src="roslib/roslib.js"></script>
+	<script src="roslib/topic/Topic_Listener.js"></script>
+	<script src="js/Base64decoder.js"></script>
+
+	<script>
+
+	</script>
+
+</head>
+<body>
+	<input id="Connect_IP" value="163.13.164.74">
+	<br>
+	<input id="Connect_Port" value="9090">
+	<button onclick="connect_bt()">Connect</button>
+	<br>
+	<br>
+	<canvas id="sendcanvas">Your browser does not support the HTML5 canvas tag.</canvas>
+	<script>
+
+
+		var ros = new ROSLIB.Ros();
+		// If there is an error on the backend, an 'error' emit will be emitted.
+		ros.on('error', function(error) {
+			console.log(error);
+		});
+
+		// Find out exactly when we made a connection.
+		ros.on('connection', function() {
+			console.log('Connection made!');
+		});
+
+		ros.on('close', function() {
+			console.log('Connection closed.');
+		});
+
+		function connect_bt(){
+			console.log($("#Connect_IP").val(),$("#Connect_Port").val());
+			connect_ws($("#Connect_IP").val(),$("#Connect_Port").val());
+		}
+
+		function connect_ws(IP,Port){
+			console.log("in here",IP,Port);
+			ros.connect('ws://'+IP+':'+Port);
+		}
+
+		var listener = new ROSLIB.Topic({
+		  ros : ros,
+		  name : '/usb_cam/image_raw',
+		  messageType : 'sensor_msgs/Image'
+		});
+
+		// Then we add a callback to be called every time a message is published on this topic.
+		listener.subscribe(function(message) {
+			//ctx_sd.drawImage(image, 0, 0, message.width, message.height);
+			var a = "";
+
+			a = decodeBase64(message.data);
+
+			$("#sendcanvas").width(message.width);
+			$("#sendcanvas").height(message.height);
+
+			document.getElementById("sendcanvas").width = message.width;
+			document.getElementById("sendcanvas").height = message.height;
+
+			var ctx_sd = document.getElementById("sendcanvas").getContext('2d');
+
+			var img_sd = ctx_sd.createImageData(message.width, message.height);
+
+			var data_sd = img_sd.data;
+
+			console.log(img_sd.data[0]);
+
+			for(var i = 0; i < img_sd.height; i++) {
+				for(var j = 0; j < img_sd.width; j++) {
+					data_sd[i*img_sd.width*4 + j*4 +0] = a.charCodeAt(i*img_sd.width*3 + j*3);
+					data_sd[i*img_sd.width*4 + j*4 +1] = a.charCodeAt(i*img_sd.width*3 + j*3 +1);
+					data_sd[i*img_sd.width*4 + j*4 +2] = a.charCodeAt(i*img_sd.width*3 + j*3 +2);
+					data_sd[i*img_sd.width*4 + j*4 +3] = 255;
+				}
+      }
+
+			ctx_sd.putImageData(img_sd, 0, 0);
+		});
+
+
+
+	</script>
+
+	<button onclick="copy()">Copy</button>
+</body>
+</html>

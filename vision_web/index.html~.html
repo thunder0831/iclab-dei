@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+
+	<img src="img/1.jpg" id="myimage" />
+	<canvas id="mycanvas">Your browser does not support the HTML5 canvas tag.</canvas>
+
+	<script>
+
+		window.onload = function() {
+			var myImage = document.getElementById('myimage');
+			var myCanvas = document.getElementById('mycanvas');
+
+			
+
+			myCanvas.width = myImage.width;
+			myCanvas.height = myImage.height;
+		
+			var ctx = myCanvas.getContext('2d');
+
+			ctx.drawImage(myImage, 0, 0);
+
+			var mydataURL=myCanvas.toDataURL('image/jpg');
+
+			console.log(mydataURL);
+		}
+		
+	</script>
+</body>
+</html>
