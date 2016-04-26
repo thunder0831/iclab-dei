@@ -344,7 +344,7 @@ namespace x264_image_transport {
 
 		    	//Not yet used...
 		    	av_free_packet(&encodedPacket_);
-                av_init_packet(&encodedPacket_);
+          av_init_packet(&encodedPacket_);
         }
 
         pthread_mutex_unlock (&mutex_);
